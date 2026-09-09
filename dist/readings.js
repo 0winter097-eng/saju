@@ -1,6 +1,6 @@
-import {RULES_VERSION,natalProfile,readingContext,composeReading} from './reading-rules.js?v=0.2.0';
+import {RULES_VERSION,natalProfile,readingContext,composeReading} from './reading-rules.js?v=0.2.1';
 // TG-1 editorial guidance only: no event predictions, health diagnosis or luck scores.
-export const READING_VERSION='NARRATIVE-KO-2';
+export const READING_VERSION='NARRATIVE-KO-3';
 export const READING_CATEGORIES=[{key:'money',label:'재물운'},{key:'work',label:'직장운'},{key:'relationships',label:'대인관계운'},{key:'love',label:'애정운'}];
 const advice=(headline,action,caution)=>({headline,action,caution,paragraphs:[`${headline} ${action} ${caution}`]});
 const romance=(headline,single,coupled,caution)=>({headline,single,coupled,caution,paragraphs:[`${headline} ${single} ${coupled} ${caution}`]});

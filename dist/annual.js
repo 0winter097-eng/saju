@@ -1,5 +1,5 @@
-import {queryPeriod,periodBounds} from './engine.js?v=0.2.0';
-import {plainReading} from './readings.js?v=0.2.0';
+import {queryPeriod,periodBounds} from './engine.js?v=0.2.1';
+import {plainReading} from './readings.js?v=0.2.1';
 
 export const ANNUAL_VERSION='ANNUAL-MONTHS-1';
 

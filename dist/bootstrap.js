@@ -5,7 +5,7 @@
  const status = document.querySelector('#startup-status');
  const retry = document.querySelector('#reload-app');
  retry.addEventListener('click', () => window.location.reload());
- import('./app.js?v=0.2.0').catch(() => {
+ import('./app.js?v=0.2.1').catch(() => {
   status.hidden = false;
   status.className = 'error';
   status.textContent = window.location.protocol === 'file:'

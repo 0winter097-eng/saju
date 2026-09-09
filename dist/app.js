@@ -1,7 +1,7 @@
-import {resolveBirthTime,timeSelectionMode} from './time-input.js?v=0.2.0';
-import {annualReading} from './annual.js?v=0.2.0';
-import {plainReading,READING_CATEGORIES} from './readings.js?v=0.2.0';
-import { VERSION, STEMS,STEM_HAN,BRANCHES,BRANCH_HAN,HIDDEN,ELEMENTS,CITIES,MINUTE,DAY,analyzeBirth,queryPeriod,visibleElements,tenGod,formatLocal,dateText,makeReport,periodBounds } from './engine.js?v=0.2.0';
+import {resolveBirthTime,timeSelectionMode} from './time-input.js?v=0.2.1';
+import {annualReading} from './annual.js?v=0.2.1';
+import {plainReading,READING_CATEGORIES} from './readings.js?v=0.2.1';
+import { VERSION, STEMS,STEM_HAN,BRANCHES,BRANCH_HAN,HIDDEN,ELEMENTS,CITIES,MINUTE,DAY,analyzeBirth,queryPeriod,visibleElements,tenGod,formatLocal,dateText,makeReport,periodBounds } from './engine.js?v=0.2.1';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const form=$('#birth-form');let model=null,result=null,periodType='year',example=false,dirty=false;
 let readingCategory='all';
@@ -69,8 +69,17 @@ function renderPlain(reading,{prefix='plain',showScope=true}={}){
  const segments=reading.segments.filter(s=>s.content);
  const range=s=>`${simpleDate(s.start)} ~ ${simpleDate(s.end)} 전`;
  const periodLabel=reading.title.replace(/\s*(연간|월간|일간)?\s*(운세|조회).*$/,'').trim();
- const paragraphs=items=>items.map(text=>`<p>${esc(text)}</p>`).join('');
- const bodyFor=key=>segments.length?segments.map(s=>`<div class="narrative-part">${segments.length>1?`<p class="period-label">${esc(range(s))}</p>`:''}${paragraphs(key==='overview'?s.content.paragraphs:s.content[key].paragraphs)}</div>`).join(''):'<p>출생시간에 따라 풀이의 기준이 달라져 결과를 보류했습니다. 출생정보를 확인한 뒤 다시 조회해 주세요.</p>';
+ const paragraphs=items=>items.flatMap(text=>{
+  const sentences=text.match(/[^.!?]+[.!?]+(?:\s+|$)|[^.!?]+$/g)??[text];
+  const chunks=[];for(let i=0;i<sentences.length;i+=2)chunks.push(sentences.slice(i,i+2).join('').trim());
+  return chunks.map(chunk=>`<p>${esc(chunk)}</p>`);
+ }).join('');
+ const bodyFor=key=>segments.length?segments.map(s=>{
+  const entry=key==='overview'?s.content:s.content[key];
+  const lead=key==='overview'?entry.title:entry.headline;
+  const body=key==='overview'?entry.paragraphs.slice(0,-1):[...(entry.action?[entry.action]:[entry.single,entry.coupled]),...entry.paragraphs.slice(1)];
+  return `<div class="narrative-part">${segments.length>1?`<p class="period-label">${esc(range(s))}</p>`:''}<p class="narrative-lead">${esc(lead)}</p><div class="narrative-copy">${paragraphs(body)}</div><aside class="reading-takeaway" aria-label="기억해 두세요"><span>기억해 두세요</span><p>${esc(entry.caution)}</p></aside></div>`;
+ }).join(''):'<p>출생시간에 따라 풀이의 기준이 달라져 결과를 보류했습니다. 출생정보를 확인한 뒤 다시 조회해 주세요.</p>';
  const sections=[{key:'overview',label:'총론'},...READING_CATEGORIES];
  const articles=sections.map(({key,label})=>`<section class="narrative-section" id="${prefix}-section-${key}" aria-labelledby="${prefix}-heading-${key}" data-reading-panel="${key}" ${readingCategory==='all'||readingCategory===key?'':'hidden'}><h3 id="${prefix}-heading-${key}">${esc(periodLabel)} ${label}</h3>${bodyFor(key)}</section>`).join('');
  const filters=[{key:'all',label:'전체 보기'},...sections].map(({key,label})=>`<button type="button" aria-pressed="${key===readingCategory}" data-reading-category="${key}">${label}</button>`).join('');
