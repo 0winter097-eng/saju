@@ -1,6 +1,0 @@
-{
- "reviewStatus":"개발 검증용. 전문가 승인 정답집 아님.",
- "lunarOfficial":{"source":"https://astro.kasi.re.kr/life/pageView/7","accessed":"2026-09-09","description":"한국천문연구원 2026년 9월 월별 천문현상 공개표에서 대조한 날짜","cases":[{"solar":"2026-09-01","lunar":"2026-07-20"},{"solar":"2026-09-09","lunar":"2026-07-28"},{"solar":"2026-09-11","lunar":"2026-08-01"},{"solar":"2026-09-25","lunar":"2026-08-15"}]},
- "lunarUpstream":{"source":"https://github.com/usingsky/korean_lunar_calendar_js","description":"라이브러리 제작자 공개 예제. 독립적인 공식 검증으로 집계하지 않음.","solar":"2017-06-24","lunar":"2017-05-01","leap":true,"day":"임오"},
- "seasonsOfficial":{"source":"https://aa.usno.navy.mil/api/seasons?year=2026","accessed":"2026-09-09","timezone":"UTC","toleranceSeconds":120,"description":"USNO 공개 분 단위 자료와 2분 이내 대조. 일부 절기 비교일 뿐 전체 절입의 오차 보증이 아님.","cases":[{"name":"춘분","utc":"2026-03-20T14:46:00Z"},{"name":"하지","utc":"2026-06-21T08:24:00Z"},{"name":"추분","utc":"2026-09-23T00:05:00Z"},{"name":"동지","utc":"2026-12-21T20:50:00Z"}]}
-}
