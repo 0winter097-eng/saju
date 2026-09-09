@@ -1,1 +1,1 @@
-{"name":"saju-reference","version":"0.1.9","private":true,"type":"module","scripts":{"test":"node scripts/test.mjs","build":"node scripts/validate.mjs"},"engines":{"node":">=22"}}
+{"name":"saju-reference","version":"0.2.0","private":true,"type":"module","scripts":{"test":"node scripts/test.mjs","build":"node scripts/validate.mjs"},"engines":{"node":">=22"}}

@@ -88,3 +88,8 @@
 - https://data.iana.org/time-zones/tzdb-2025b/asia — 고정 시간대 근거, public domain
 
 자료 열람: 2026-09-09. 테스트별 분류는 `tests/fixtures.json`, 자동 검증 결과·소스 해시는 `dist/verification.json`에 저장한다.
+
+
+## 10. v0.2.0 입력·설명 계층 확장
+
+만세력 계산 엔진·절기표는 기존 버전을 유지합니다. `time-input.js`가 조자~야자 시간 선택을 같은 날의 분 단위 범위로 변환하며, 명칭으로 시주를 확정하지 않습니다. `reading-rules.js`는 기존 계산값을 사용해 원국 십성 군·기간 배경·조회 지지 본기·출생 지지 관계·활성 대운을 문장에 연결합니다. 기본 해석에 더하는 조건과 표시 우선순위는 `INTERPRETATION_RULES.md`를 따릅니다. 기본 계산 JSON의 `interpretationStatus`는 엔진 범위의 설명이고, 확장 해석 버전·근거는 `plainReading`에 별도로 포함됩니다.

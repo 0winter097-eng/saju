@@ -16,6 +16,12 @@ test('쉬운 풀이가 원본 계산을 바꾸지 않고 연·월·일 전체 �
    if(index)assert.equal(reading.segments[index-1].end,s.start);
    for(const i of s.sourceRows)assert.equal(s.god,period.rows[i].evidence.god);
    assert.ok(s.content.summary&&s.content.work&&s.content.money&&s.content.relationships&&s.content.love&&s.content.caution);
+   assert.equal(s.content.paragraphs[0],s.content.summary);
+   assert.equal(s.content.paragraphs.at(-1),s.content.caution);
+   for(const {key} of READING_CATEGORIES){
+    const entry=s.content[key],expected=[entry.headline,...(entry.action?[entry.action]:[entry.single,entry.coupled]),entry.caution].join(' ');
+    assert.equal(entry.paragraphs[0],expected,'서술형 문단에 핵심·행동·주의사항과 관계별 조건이 모두 보존되어야 함');
+   }
   }
   assert.equal(JSON.stringify(makeReport(model,period)),before);
   assert.deepEqual(plainReading(model,period),reading);
@@ -63,7 +69,7 @@ test('성별 미지정은 기본 풀이를 막지 않으며 출생 전 구간을
 
 
 test('네 분야를 제공하며 애정은 관계 상태를 단정하지 않음',()=>{
- assert.deepEqual(READING_CATEGORIES.map(c=>c.label),['돈','직장','대인관계','애정']);
+ assert.deepEqual(READING_CATEGORIES.map(c=>c.label),['재물운','직장운','대인관계운','애정운']);
  for(const input of [birth,{...birth,date:'2000-01-07',sex:'male'},{...birth,timeMode:'unknown'}]){
   const model=analyzeBirth(input),reading=plainReading(model,queryPeriod(model,{type:'year',year:2027}));
   assert.equal(Object.hasOwn(reading,'health'),false);
@@ -78,5 +84,7 @@ test('내려받은 설명을 수정해도 다른 조회의 문장을 바꾸지 �
  const model=analyzeBirth(birth),period=queryPeriod(model,{type:'year',year:2027});
  const original=plainReading(model,period),changed=plainReading(model,period);
  changed.segments[0].content.money.headline='수정';
+ changed.segments[0].content.money.paragraphs[0]='수정';
+ changed.segments[0].content.paragraphs.push('수정');
  assert.deepEqual(plainReading(model,period),original);
 });
