@@ -10,7 +10,7 @@
     "tests/engine.test.mjs": "71b68dd933a4b86a981a5d1c8d2313f63b2d150d3e60e58f986a5ab38c97fc68",
     "dist/readings.js": "92a49a75312e32ba95863e8185cf4b438342e1e7104ac8a04337f3f93dc22ca5",
     "tests/readings.test.mjs": "b58ab318acf11235e029fbfe5b2b97f7c6638aff3b775ac4348ed3a6b29bb5df",
-    "dist/annual.js": "f6e6f3984291b2d71a7d8a20a23fa41283d68deb362838b0477ec0fb9d3013ee",
+    "dist/annual.js": "2b791b30d6ccb294c3dd3857af26e0aae6c49e10522c532e310baafafc4cd012",
     "tests/annual.test.mjs": "7e59565183e1e368b42d657f658bc2431b9f8cb4d9cf8f33c5a0ea67ceef9745"
   },
   "groups": [

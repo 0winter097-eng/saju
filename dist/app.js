@@ -1,8 +1,9 @@
-import {annualReading} from './annual.js?v=0.1.7';
-import {plainReading,READING_CATEGORIES} from './readings.js?v=0.1.7';
-import { VERSION, STEMS,STEM_HAN,BRANCHES,BRANCH_HAN,HIDDEN,ELEMENTS,CITIES,MINUTE,DAY,analyzeBirth,queryPeriod,visibleElements,tenGod,formatLocal,dateText,makeReport,periodBounds } from './engine.js?v=0.1.7';
+import {annualReading} from './annual.js?v=0.1.9';
+import {plainReading,READING_CATEGORIES} from './readings.js?v=0.1.9';
+import { VERSION, STEMS,STEM_HAN,BRANCHES,BRANCH_HAN,HIDDEN,ELEMENTS,CITIES,MINUTE,DAY,analyzeBirth,queryPeriod,visibleElements,tenGod,formatLocal,dateText,makeReport,periodBounds } from './engine.js?v=0.1.9';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const form=$('#birth-form');let model=null,result=null,periodType='year',example=false,dirty=false;
+let readingCategory='money';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const sourceLabels={record:'출생기록',memory:'가족의 기억',unknown:'확인 불가'};
 function updateFields(){
@@ -63,36 +64,86 @@ function pillarCard(key,label){
  return `<article class="pillar ${key==='day'?'day':''}"><div class="pillar-label">${label}${key==='day'?' · 나':''}</div><span class="han element-${Math.floor(p.stem/2)}">${STEM_HAN[p.stem]}</span><span class="han element-${Math.floor(HIDDEN[p.branch][0]/2)}">${BRANCH_HAN[p.branch]}</span><div class="ko">${p.name}</div><div class="sub">${key==='day'?'일간':day?tenGod(day.stem,p.stem):'십성 미확정'}<br>지장간 ${HIDDEN[p.branch].map(s=>STEM_HAN[s]).join(' · ')}</div></article>`;
 }
 const simpleDate=(ms)=>{const d=new Date(ms+540*MINUTE);return d.toISOString().slice(0,16).replace('T',' ');};
-function renderPlain(reading,{prefix='plain',showNotes=true,showScope=true}={}){
+function renderPlain(reading,{prefix='plain',showScope=true}={}){
  const segments=reading.segments.filter(s=>s.content);
  const range=s=>`${simpleDate(s.start)} ~ ${simpleDate(s.end)} 전`;
  const overview=segments.length?`<h3>이번에는 이걸 기억해라</h3>${segments.map(s=>`<div class="overview-part"><span>${esc(range(s))}</span><h4>${esc(s.content.title)}</h4><p>${esc(s.content.summary)}</p></div>`).join('')}`:'<h3>출생시간을 먼저 확인해야 합니다.</h3><p>풀이의 기준이 정해지지 않아 개인별 결과를 보류했습니다.</p>';
  const lines=entry=>`<p class="domain-headline">${esc(entry.headline)}</p><dl class="advice-lines">${entry.action?`<dt>이렇게 해라</dt><dd>${esc(entry.action)}</dd>`:`<dt>새 인연</dt><dd>${esc(entry.single)}</dd><dt>연인·배우자</dt><dd>${esc(entry.coupled)}</dd>`}<dt class="caution-label">조심할 점</dt><dd class="caution-copy">${esc(entry.caution)}</dd></dl>`;
  const cards=READING_CATEGORIES.map(({key,label})=>{
   const body=segments.length?segments.map(s=>`<div class="domain-part">${segments.length>1?`<span class="period-label">${esc(range(s))}</span>`:''}${lines(s.content[key])}</div>`).join(''):'<p class="domain-headline">출생정보 확인 후 풀이할 수 있습니다.</p><p>출생시간에 따라 기준이 달라져 결과를 보류했습니다.</p>';
-  return `<article class="everyday-card" data-category="${key}"><h4>${label}</h4>${body}</article>`;
+  return `<article class="everyday-card" id="${prefix}-panel-${key}" role="tabpanel" aria-labelledby="${prefix}-tab-${key}" tabindex="0" data-reading-panel="${key}" ${key===readingCategory?'':'hidden'}><h4>${label}</h4>${body}</article>`;
  }).join('');
- return `<section id="${prefix}-reading" aria-label="분야별 운세와 주의사항"><article class="plain-overview"><span class="eyebrow">핵심부터 읽는 나의 운세</span>${overview}</article>
- ${showNotes&&reading.notes.length?`<aside class="plain-notes" aria-label="입력정보 안내">${reading.notes.map(n=>`<p>${esc(n)}</p>`).join('')}</aside>`:''}
- <section class="everyday-section" aria-labelledby="${prefix}-everyday-title"><h3 id="${prefix}-everyday-title">돈 · 직장 · 대인관계 · 애정</h3><p class="section-caption">분야별 조언과 조심할 점을 함께 읽어보세요. 조심할 점은 사건 발생 예고가 아닌 행동 지침입니다.</p><div class="everyday-grid">${cards}</div></section>
- ${segments.length?`<section class="plain-cautions" aria-labelledby="${prefix}-caution-title"><h3 id="${prefix}-caution-title">특히 조심할 점</h3><ul>${segments.map(s=>`<li>${segments.length>1?`<span class="period-label">${esc(range(s))}</span>`:''}<p>${esc(s.content.caution)}</p></li>`).join('')}</ul></section>`:''}
+ const tabs=READING_CATEGORIES.map(({key,label})=>`<button type="button" role="tab" id="${prefix}-tab-${key}" aria-controls="${prefix}-panel-${key}" aria-selected="${key===readingCategory}" tabindex="${key===readingCategory?0:-1}" data-reading-category="${key}">${label}</button>`).join('');
+ return `<section id="${prefix}-reading" data-reading-group aria-label="분야별 운세와 주의사항">
+ <section class="everyday-section" aria-labelledby="${prefix}-everyday-title"><h3 id="${prefix}-everyday-title">어떤 운세가 궁금해?</h3><p class="section-caption">분야를 누르면 해당 운세와 조심할 점을 볼 수 있어요.</p><div class="fortune-tabs" role="tablist" aria-label="운세 분야">${tabs}</div><div class="fortune-panels">${cards}</div></section>
+ <details class="reading-overview-details"><summary>전체 요약과 공통 주의사항</summary><div class="reading-overview-body"><article class="plain-overview"><span class="eyebrow">핵심부터 읽는 나의 운세</span>${overview}</article>
+ ${segments.length?`<section class="plain-cautions" aria-labelledby="${prefix}-caution-title"><h3 id="${prefix}-caution-title">공통으로 조심할 점</h3><ul>${segments.map(s=>`<li>${segments.length>1?`<span class="period-label">${esc(range(s))}</span>`:''}<p>${esc(s.content.caution)}</p></li>`).join('')}</ul></section>`:''}</div></details>
  ${showScope?`<p class="reading-scope">${esc(reading.scope)}<br><span>${esc(reading.status)}</span></p>`:''}</section>`;
 }
 function renderAnnual(annual,reading){
  const first=annual.months.find(m=>m.status==='ready')?.month;
- return `<section id="annual-reading" aria-label="1월부터 12월까지 월별 운세"><div class="annual-heading"><span class="eyebrow">한 해를 월별로</span><h3>${annual.year}년, 달마다 이렇게 챙겨라</h3><p>보고 싶은 달을 누르면 돈·직장·대인관계·애정과 조심할 점을 볼 수 있어요.</p></div>
+ return `<section id="annual-reading" aria-label="1월부터 12월까지 월별 운세"><div class="annual-heading"><span class="eyebrow">한 해를 월별로</span><h3>${annual.year}년, 달마다 이렇게 챙겨라</h3><p>보고 싶은 달을 펼친 뒤, 궁금한 운세 탭을 눌러 봐라.</p></div>
  <nav class="month-navigation" aria-label="월별 결과로 이동">${annual.months.map(m=>`<button type="button" data-jump-month="${m.month}" aria-controls="annual-month-${m.month}">${m.label}</button>`).join('')}</nav>
- ${reading.notes.length?`<aside class="plain-notes" aria-label="입력정보 안내">${reading.notes.map(n=>`<p>${esc(n)}</p>`).join('')}</aside>`:''}
  <div class="annual-months">${annual.months.map(m=>{
   const segments=m.reading?.segments.filter(s=>s.content)??[];
   const preview=m.status==='before-birth'?'출생 전 기간':segments.length?segments.map(s=>s.content.title).join(' / '):'출생시간 확인 후 풀이할 수 있어요';
-  const body=m.reading?`${m.period.trimmed?'<p class="help">태어난 시점 이후의 풀이만 표시합니다.</p>':''}<p class="month-period-note">${m.label}의 기간별 풀이입니다. 달 안에서 풀이가 바뀌면 구간을 나눠 표시해요. 월간 조회와 같은 결과이며 시각은 한국 표준시 기준입니다.</p>${renderPlain(m.reading,{prefix:`month-${m.month}`,showNotes:false,showScope:false})}<details class="month-evidence"><summary>${m.label} 풀이 근거 보기</summary><ul>${m.period.rows.map(row=>`<li>${simpleDate(row.start)} ~ ${simpleDate(row.end)} 전 · ${esc(row.evidence?`${row.evidence.god} / ${row.evidence.rule} / ${row.evidence.basis}`:'출생일 기준 미확정으로 해석 보류')}</li>`).join('')}</ul></details>`:'<p class="month-unavailable">태어나기 전의 기간이어서 운세를 제공하지 않습니다.</p>';
+  const body=m.reading?`${m.period.trimmed?'<p class="help">태어난 시점 이후의 풀이만 표시합니다.</p>':''}<p class="month-period-note">${m.label}의 기간별 풀이입니다. 달 안에서 풀이가 바뀌면 구간을 나눠 표시해요. 월간 조회와 같은 결과이며 시각은 한국 표준시 기준입니다.</p>${renderPlain(m.reading,{prefix:`month-${m.month}`,showScope:false})}<details class="month-evidence"><summary>${m.label} 풀이 근거 보기</summary><ul>${m.period.rows.map(row=>`<li>${simpleDate(row.start)} ~ ${simpleDate(row.end)} 전 · ${esc(row.evidence?`${row.evidence.god} / ${row.evidence.rule} / ${row.evidence.basis}`:'출생일 기준 미확정으로 해석 보류')}</li>`).join('')}</ul></details>`:'<p class="month-unavailable">태어나기 전의 기간이어서 운세를 제공하지 않습니다.</p>';
   return `<details class="annual-month" id="annual-month-${m.month}" ${m.month===first?'open':''}><summary><span class="month-name">${m.label}</span><span class="month-preview">${esc(preview)}</span><span class="month-toggle" aria-hidden="true">펼치기</span></summary><div class="annual-month-body">${body}</div></details>`;
  }).join('')}</div><p class="reading-scope">${esc(reading.scope)}<br><span>${esc(reading.status)}</span></p></section>`;
 }
-let printMonthStates=[];
-window.addEventListener('beforeprint',()=>{printMonthStates=$$('.annual-month').map(element=>({element,open:element.open}));printMonthStates.forEach(({element})=>element.open=true);});
-window.addEventListener('afterprint',()=>{printMonthStates.forEach(({element,open})=>element.open=open);printMonthStates=[];});
+function renderReference(reading){
+ if(!reading.notes.length)return '';
+ return `<div class="result-reference"><button type="button" id="reference-toggle" class="reference-toggle" aria-expanded="false" aria-controls="reference-content">※ 참고<span class="sr-only">: 출생정보에 따른 풀이 범위 안내</span></button><aside id="reference-content" class="reference-content" aria-labelledby="reference-title" hidden><h3 id="reference-title">참고사항</h3>${reading.notes.map(n=>`<p>${esc(n)}</p>`).join('')}</aside></div>`;
+}
+function bindReference(){
+ $('#results').onclick=null;$('#results').onkeydown=null;
+ const wrapper=$('.result-reference');if(!wrapper)return;
+ const button=$('#reference-toggle'),content=$('#reference-content');let pinned=false;
+ const show=open=>{content.hidden=!open;button.setAttribute('aria-expanded',String(open));};
+ const close=()=>{pinned=false;show(false);};
+ wrapper.addEventListener('pointerenter',event=>{if(event.pointerType==='mouse')show(true);});
+ wrapper.addEventListener('pointerleave',event=>{if(event.pointerType==='mouse'&&!pinned&&!wrapper.contains(document.activeElement))show(false);});
+ wrapper.addEventListener('focusin',()=>show(true));
+ wrapper.addEventListener('focusout',event=>{if(!wrapper.contains(event.relatedTarget))close();});
+ button.addEventListener('click',()=>{pinned=!pinned;show(pinned);});
+ // Bound to the persistent results container: replaced on every result render.
+ $('#results').onclick=event=>{if(!wrapper.contains(event.target))close();};
+ $('#results').onkeydown=event=>{if(event.key==='Escape'&&!content.hidden){event.preventDefault();close();}};
+}
+// Category controls are scoped to each reading, independently of the main navigation.
+function bindReadingTabs(){
+ $$('[data-reading-group]').forEach(group=>{
+  const tabs=[...group.querySelectorAll('[data-reading-category]')];
+  const panels=[...group.querySelectorAll('[data-reading-panel]')];
+  const activate=button=>{
+   readingCategory=button.dataset.readingCategory;
+   tabs.forEach(tab=>{const active=tab===button;tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;});
+   panels.forEach(panel=>panel.hidden=panel.dataset.readingPanel!==readingCategory);
+  };
+  tabs.forEach((button,index)=>{
+   button.addEventListener('click',()=>activate(button));
+   button.addEventListener('keydown',event=>{
+    if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+    event.preventDefault();
+    const next=event.key==='Home'?0:event.key==='End'?tabs.length-1:(index+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
+    activate(tabs[next]);tabs[next].focus();
+   });
+  });
+ });
+}
+let printStates=null;
+window.addEventListener('beforeprint',()=>{
+ if(printStates)return;
+ printStates={details:$$('.annual-month,.reading-overview-details').map(element=>({element,open:element.open})),panels:$$('[data-reading-panel],#reference-content').map(element=>({element,hidden:element.hidden}))};
+ printStates.details.forEach(({element})=>element.open=true);
+ printStates.panels.forEach(({element})=>element.hidden=false);
+});
+window.addEventListener('afterprint',()=>{
+ if(!printStates)return;
+ printStates.details.forEach(({element,open})=>element.open=open);
+ printStates.panels.forEach(({element,hidden})=>element.hidden=hidden);
+ printStates=null;
+});
 
 function render(){
  $('#status').textContent=example?'가상 예시입니다. 실제 출생정보가 아닙니다.':'계산이 완료되었습니다. 입력정보는 자동 저장하지 않습니다.';
@@ -110,7 +161,7 @@ function render(){
  const rows=r.rows.map(row=>`<div class="timeline-row"><div><time>${simpleDate(row.start)}</time><time class="interval-end">~ ${simpleDate(row.end)}</time></div><div><span class="han-small">${row.target.han}</span><span class="row-sub">${row.target.name} · ${row.evidence?.god??'십성 미확정'}</span></div><div>${esc(row.evidence?.label??'일간을 먼저 확인해 주세요')}<span class="row-sub">연주 ${row.chart.year.name} · 월주 ${row.chart.month.name}${r.type==='day'?` · 일주 ${row.chart.day.name}`:''}</span>${row.relations.length?`<span class="tag">일지와 ${row.relations.map(x=>x.type).join(' · ')}</span>`:''}</div><div>${row.active?row.active.pillar.han:daewoon?'시작 전':'미확정'}<span class="row-sub">${row.daewoonEvidence?.god??'대운'}</span></div></div>`).join('');
  const cards=gods.length?gods.map(ev=>`<article class="reading-card"><span class="badge review">${ev.god} · 검수 전</span><h4>${ev.label}</h4><p>${ev.body}</p><div class="reflection">생각해 볼 질문<br>${ev.prompt}</div><div class="evidence">근거 ${ev.rule} · ${ev.basis}</div></article>`).join(''):'<div class="notice">일간이 미확정되어 개인별 십성 해석을 보류합니다. 아래 후보 비교에서 달라지는 기둥을 확인해 주세요.</div>';
  $('#results').innerHTML=`
- <div class="result-heading"><div><h2>${esc(r.title)}</h2><p>${subtitle}</p></div>${example?'<span class="example-tag">가상 예시</span>':`<span class="badge ${count>1||m.nearTerms.length?'review':''}">${count>1?'출생시간 확인 필요':m.nearTerms.length?'출생시각 확인 필요':'쉬운 설명'}</span>`}</div>
+ <div class="result-heading"><div><h2>${esc(r.title)}</h2><p>${subtitle}</p></div><div class="result-heading-tools">${example?'<span class="example-tag">가상 예시</span>':`<span class="badge ${count>1||m.nearTerms.length?'review':''}">${count>1?'출생시간 확인 필요':m.nearTerms.length?'출생시각 확인 필요':'쉬운 설명'}</span>`}${renderReference(reading)}</div></div>
  ${annual?renderAnnual(annual,reading):renderPlain(reading)}
  <details id="calculation-details" class="detail-box calculation-details"><summary>상세 계산 보기 <span>사주팔자 · 오행 · 풀이 근거</span></summary><div class="calculation-content">
  <article class="profile-card"><div class="profile-card-header"><h3>사주팔자 <span class="version">四柱八字</span></h3><small>음력 ${dateText(m.normalized.lunar)}<br>${m.normalized.lunar.intercalation?'윤달':'평달'} · ${esc(sourceLabels[m.input.source]??'확인 불가')}</small></div><div class="pillars">${pillarCard('year','연주')}${pillarCard('month','월주')}${pillarCard('day','일주')}${pillarCard('hour','시주')}</div><p class="profile-card-note">${m.rules.dayBoundary==='midnight'?'00:00':'23:00'} 일주 경계 · ${m.rules.solarTime==='standard'?'표준시':'지방평균태양시'} · 연·월주는 절입 기준</p></article>
@@ -122,6 +173,8 @@ function render(){
  <details class="detail-box"><summary>계산 근거와 버전 확인</summary><dl class="key-values"><dt>엔진 / 규칙</dt><dd>${VERSION.engine} / ${VERSION.rules}</dd><dt>시간대 자료</dt><dd>${VERSION.timezone}</dd><dt>음력 변환</dt><dd>${VERSION.lunar}</dd><dt>절기 계산</dt><dd>${VERSION.terms} · 공식 자료 전체 대조 전</dd><dt>출생 시각 보정</dt><dd>${m.candidates[0].chart.correctionMinutes.toFixed(3)}분 · ${esc(m.candidates[0].chart.corrected)} (첫 후보)</dd><dt>오행 집계</dt><dd>${e.method}</dd><dt>대운 산식</dt><dd>${daewoon?esc(daewoon.conversion):'입력 불확실 또는 미지정으로 보류'}</dd><dt>해석 규칙</dt><dd>${VERSION.interpretation}</dd></dl><div class="table-scroll"><table><thead><tr><th>조회 기간의 절입</th><th>한국 표준시 (계산값)</th><th>황경</th></tr></thead><tbody>${r.terms.map(t=>`<tr><td>${t.name}</td><td>${simpleDate(t.ms)}</td><td>${t.longitude}°</td></tr>`).join('')||'<tr><td colspan="3">기간 내 절입 없음</td></tr>'}</tbody></table></div></details>
  </div></details>
  <div class="actions-row"><button id="download" type="button" class="secondary">결과·근거 JSON 내려받기</button><button id="print" type="button" class="secondary">인쇄</button><p class="help">내려받는 파일에는 입력한 출생정보가 포함됩니다.</p></div>`;
+ bindReadingTabs();
+ bindReference();
  $$('[data-jump-month]').forEach(button=>button.addEventListener('click',()=>{const month=$('#annual-month-'+button.dataset.jumpMonth);month.open=true;reveal(month.querySelector('summary'));}));
  $('#download').addEventListener('click',()=>{const blob=new Blob([JSON.stringify({...makeReport(model,result),plainReading:reading,...(annual?{annualReading:annual}:{})},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`saju-result-${selection().type}-${selection().type==='day'?selection().date:selection().year}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
  $('#print').addEventListener('click',()=>window.print());

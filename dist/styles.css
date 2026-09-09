@@ -21,3 +21,28 @@
 .annual-heading{padding:25px 28px;border-radius:12px;background:var(--navy);color:#fff}.annual-heading .eyebrow{color:#dcc093}.annual-heading h3{font-size:1.45rem;line-height:1.5;margin-bottom:8px}.annual-heading p{margin:0;color:#dde7ed;font-size:1rem}.month-navigation{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:18px 0 24px}.month-navigation button{min-height:44px;border:1px solid #bacbd5;border-radius:6px;background:#fff;color:var(--ink);font-size:1rem;font-weight:600}.month-navigation button:hover{background:#e5eef2}.annual-month{background:#fff;border:1px solid var(--line);border-radius:10px;margin-top:14px;scroll-margin-top:20px}.annual-month>summary{display:grid;grid-template-columns:65px minmax(0,1fr) 55px;align-items:center;gap:16px;padding:22px;list-style:none}.annual-month>summary::-webkit-details-marker{display:none}.month-name{font-size:1.35rem;color:var(--teal);font-weight:700}.month-preview{font-size:.94rem;line-height:1.7;font-weight:400;word-break:keep-all;overflow-wrap:anywhere}.month-toggle{font-size:.85rem;color:var(--muted)}.annual-month[open]>summary{border-bottom:1px solid var(--line);background:#f4f8f9;border-radius:10px 10px 0 0}.annual-month[open] .month-toggle{font-size:0}.annual-month[open] .month-toggle:after{content:'접기';font-size:.85rem}.annual-month-body{padding:22px}.month-period-note{font-size:.875rem;line-height:1.7;color:var(--muted);margin-bottom:18px}.annual-month .plain-overview{padding:24px}.annual-month .plain-overview h3{font-size:1.2rem}.annual-month .overview-part{margin-top:15px;padding-top:15px}.month-evidence{margin-top:20px;border-top:1px solid var(--line);padding-top:15px}.month-evidence summary{font-size:.875rem}.month-evidence ul{padding-left:20px;font-size:.875rem;overflow-wrap:anywhere}.month-evidence li+li{margin-top:8px}.month-unavailable{margin:0;color:var(--muted)}
 @media(max-width:760px){.annual-heading{padding:22px}.month-navigation{grid-template-columns:repeat(4,minmax(0,1fr))}.annual-month>summary{grid-template-columns:50px minmax(0,1fr);gap:12px;padding:18px}.month-toggle{display:none}.month-name{font-size:1.15rem}.month-preview{font-size:.875rem}.annual-month-body{padding:16px}.annual-month .plain-overview{padding:20px}}
 @media print{.month-navigation,.month-toggle,.month-evidence{display:none}.annual-heading{background:#fff;color:#000;border:1px solid #aaa}.annual-heading p,.annual-heading .eyebrow{color:#222}.annual-month{break-inside:auto}.annual-month>summary{break-after:avoid;grid-template-columns:60px 1fr}.annual-month-body{padding:14px}.annual-month[open]>summary{background:#fff}.annual-month .plain-overview{break-inside:avoid}}
+.fortune-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:6px;background:#e6ecef;border:1px solid var(--line);border-radius:10px;margin-bottom:16px}
+.fortune-tabs button{min-height:48px;padding:9px 6px;border:1px solid transparent;border-radius:7px;background:transparent;color:#526570;font-size:1rem;font-weight:600;white-space:nowrap}
+.fortune-tabs button:hover{background:#f7fafb;color:var(--ink)}
+.fortune-tabs button[aria-selected=true]{background:var(--navy);color:#fff;border-color:var(--navy);box-shadow:0 2px 5px #192e3d20}
+.fortune-panels .everyday-card{max-width:100%;border-top:3px solid var(--teal)}
+.fortune-panels .domain-part{max-width:76ch}
+.fortune-panels [role=tabpanel]:focus-visible{outline:3px solid #b17b3d;outline-offset:3px}
+[data-reading-group]>.everyday-section{margin-top:0}
+.reading-overview-details{margin-top:18px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.reading-overview-details>summary{padding:17px 20px;color:var(--ink);font-size:.94rem;min-height:52px}
+.reading-overview-body{padding:0 18px 18px}
+.reading-overview-body .plain-cautions{margin-top:14px}
+@media(max-width:760px){.fortune-tabs{gap:3px;padding:4px}.fortune-tabs button{font-size:.875rem;padding:9px 3px}.reading-overview-body{padding:0 12px 12px}}
+@media print{.fortune-tabs{display:none}.fortune-panels .everyday-card{margin-bottom:16px}.fortune-panels [data-reading-panel][hidden]{display:block!important}.reading-overview-details{border:0}.reading-overview-details>summary{display:none}.reading-overview-body{padding:0}}
+
+.result-heading-tools{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.result-reference{position:relative;flex:none}
+.reference-toggle{min-height:36px;padding:6px 8px;border:0;border-radius:5px;background:transparent;color:var(--muted);font-size:.8125rem;white-space:nowrap;text-decoration:underline dotted;text-underline-offset:4px}
+.reference-toggle:hover,.reference-toggle[aria-expanded=true]{color:var(--ink);background:#e6ecef}
+.reference-content{position:absolute;inset-inline-end:0;top:100%;z-index:20;width:min(340px,calc(100vw - 48px));max-height:60vh;overflow:auto;padding:18px;background:#fff;border:1px solid #cbd5dc;border-radius:8px;box-shadow:0 8px 28px #142a3b26;color:var(--muted);font-size:.875rem;line-height:1.75}
+.reference-content h3{font-size:.875rem;color:var(--ink);margin:0 0 9px}
+.result-heading .reference-content p{font-size:.875rem;line-height:1.75;margin:0;word-break:keep-all;overflow-wrap:anywhere}
+.result-heading .reference-content p+p{margin-top:10px}
+@media(max-width:760px){.result-heading-tools{margin-left:auto}.reference-toggle{min-height:44px}}
+@media print{.result-heading{display:block}.result-heading-tools{display:block}.result-reference{margin-top:12px}.reference-toggle{display:none}.reference-content,.reference-content[hidden]{display:block!important;position:static;width:auto;max-height:none;overflow:visible;padding:12px;box-shadow:none;border-color:#bbb;break-inside:avoid}}
